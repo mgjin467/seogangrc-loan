@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>충북06로5982 담보대출 심사</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: 서류 머리말 → 판정 배너 → [좌: 조건 입력(고정) | 우: 계산·배분·민감도] → 등록원부 근거 자료 */
+:root{
+  --paper:#f5f6f8; --sheet:#ffffff; --ink:#1b2230; --muted:#5c6577; --line:#dde1e8; --soft:#eef1f5;
+  --accent:#264b7a; --accent-soft:#e3eaf4;
+  --woori:#6b7a99; --other:#9a8f7a; --sg:#264b7a; --new:#2f8a5b; --short:#c2412d;
+  --ok:#22764b; --ok-bg:#e4f3ea; --warn:#9a6200; --warn-bg:#fbf0d9; --bad:#b33a28; --bad-bg:#fae6e2;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11151c; --sheet:#181d26; --ink:#e6e9ef; --muted:#9aa3b4; --line:#2a313d; --soft:#1f2530;
+  --accent:#8fb0e0; --accent-soft:#1f2b3d;
+  --woori:#7d8aa6; --other:#a99d86; --sg:#6f97d3; --new:#4cb37f; --short:#e0705c;
+  --ok:#6fcf98; --ok-bg:#16301f; --warn:#e6b453; --warn-bg:#33270f; --bad:#f08a76; --bad-bg:#3a1c17;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11151c; --sheet:#181d26; --ink:#e6e9ef; --muted:#9aa3b4; --line:#2a313d; --soft:#1f2530;
+  --accent:#8fb0e0; --accent-soft:#1f2b3d;
+  --woori:#7d8aa6; --other:#a99d86; --sg:#6f97d3; --new:#4cb37f; --short:#e0705c;
+  --ok:#6fcf98; --ok-bg:#16301f; --warn:#e6b453; --warn-bg:#33270f; --bad:#f08a76; --bad-bg:#3a1c17;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:24px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:16px;font-weight:700}
+h3{font-size:13px;font-weight:600}
+.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.label{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--muted)}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:18px}
+.panel > h2{margin-bottom:12px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.panel > h2 small{font-size:12px;font-weight:400;color:var(--muted)}
+
+/* 머리말 */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:12px}
+.head .meta{display:grid;grid-template-columns:auto auto;gap:2px 14px;font-size:12px}
+.head .meta dt{color:var(--muted)} .head .meta dd{margin:0;font-family:var(--mono)}
+.plate{display:inline-block;font-family:var(--mono);font-weight:600;border:1.5px solid var(--ink);border-radius:4px;padding:1px 8px;margin-right:6px;font-size:15px;vertical-align:2px}
+
+/* 판정 배너 */
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;border-radius:8px;padding:18px 20px;border:1px solid var(--line);background:var(--sheet)}
+.stamp{width:108px;height:108px;border-radius:50%;border:3px solid currentColor;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;line-height:1.2;transform:rotate(-8deg)}
+.stamp b{font-size:20px} .stamp span{font-size:11px;font-weight:600}
+.v-ok .stamp{color:var(--ok)} .v-warn .stamp{color:var(--warn)} .v-bad .stamp{color:var(--bad)}
+.v-ok{background:var(--ok-bg)} .v-warn{background:var(--warn-bg)} .v-bad{background:var(--bad-bg)}
+.verdict .big{font-size:28px;font-weight:700;font-family:var(--mono);letter-spacing:-.02em}
+.verdict p{margin:4px 0 0;max-width:68ch}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.kpi{background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
+.kpi .v{font-family:var(--mono);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:11px;color:var(--muted)}
+
+/* 본문 2단 */
+.grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+.controls{position:sticky;top:max(12px,env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:14px}
+.results{display:flex;flex-direction:column;gap:20px;min-width:0}
+.group{display:flex;flex-direction:column;gap:12px}
+.group + .group{border-top:1px dashed var(--line);padding-top:14px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.field label{font-size:13px;font-weight:500}
+.field .hint{font-size:11px;color:var(--muted)}
+.numbox{display:flex;align-items:center;gap:4px}
+.numbox input{width:78px;text-align:right;font-family:var(--mono);font-size:13px;padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--ink)}
+.numbox span{font-size:12px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--soft);color:var(--ink);font-family:var(--sans);font-size:13px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--sheet);color:var(--ink);font:inherit;font-size:12px;padding:7px 4px;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--sheet);font-weight:600}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:999px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px;cursor:pointer}
+.check input{margin-top:3px;accent-color:var(--accent)}
+.check em{font-style:normal;font-size:10px;font-weight:700;color:var(--bad);border:1px solid currentColor;border-radius:3px;padding:0 3px;margin-left:4px;vertical-align:1px}
+
+/* 계산표 */
+.calc{width:100%;border-collapse:collapse;font-size:13px}
+.calc td{padding:7px 4px;border-bottom:1px solid var(--soft)}
+.calc td:last-child{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.calc td:first-child{width:28px;color:var(--muted);font-family:var(--mono);font-size:12px}
+.calc tr.sum td{border-top:1.5px solid var(--ink);border-bottom:0;font-weight:700}
+.calc tr.minus td:last-child{color:var(--muted)}
+.calc .note{font-size:11px;color:var(--muted);display:block}
+
+/* 배분 막대: 위=차량 가치, 아래=채권 (같은 눈금) */
+.chart{position:relative;padding-top:34px}
+.trk{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:center}
+.trk + .trk{margin-top:8px}
+.trk-l{font-size:12px;color:var(--muted);line-height:1.25}
+.bar{position:relative;height:40px;border-radius:4px;background:var(--soft);overflow:hidden;isolation:isolate}
+.seg-b{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;font-family:var(--mono);white-space:nowrap;overflow:hidden;border-right:1px solid var(--sheet)}
+.seg-b span{position:relative;z-index:2;padding:0 4px;border-radius:3px;background:color-mix(in srgb,#000 22%,transparent)}
+.val-net{background:color-mix(in srgb,var(--accent) 24%,var(--sheet));color:var(--ink)!important}
+.val-net span,.val-loss span,.val-over span{background:var(--sheet)}
+.val-loss{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--short) 14%,var(--sheet)) 0 6px,color-mix(in srgb,var(--short) 45%,var(--sheet)) 6px 8px);color:var(--short)!important}
+.val-over{background:transparent;border:1.5px dashed var(--muted);border-radius:0 4px 4px 0;color:var(--muted)!important}
+.unrec{position:absolute;top:0;bottom:0;right:0;z-index:1;background:repeating-linear-gradient(135deg,transparent 0 6px,color-mix(in srgb,var(--short) 60%,transparent) 6px 8px)}
+.marks{position:absolute;top:0;bottom:0;left:70px;right:0;pointer-events:none;z-index:3}
+.mark{position:absolute;top:0;bottom:0;border-left:2px solid var(--ink)}
+.mark.net{border-left:2px dashed var(--short);top:16px}
+.mark b{position:absolute;top:0;font-size:11px;font-family:var(--mono);white-space:nowrap;font-weight:600;transform:translateX(-50%);background:var(--sheet);padding:0 3px}
+.mark.net b{color:var(--short);top:0}
+.mark.edge-r b{transform:translateX(-100%)} .mark.edge-l b{transform:none}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px;margin-left:70px}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:14px}
+.legend div{display:flex;gap:8px;align-items:flex-start;font-size:12px}
+.legend i{width:12px;height:12px;border-radius:2px;flex:none;margin-top:3px}
+.legend b{display:block;font-family:var(--mono);font-size:13px}
+
+/* 민감도 */
+.scroll{overflow-x:auto}
+.sens{border-collapse:collapse;font-size:12px;min-width:560px;width:100%}
+.sens th,.sens td{padding:6px 6px;text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;border:1px solid var(--sheet)}
+.sens thead th{color:var(--muted);font-weight:500;background:var(--soft)}
+.sens tbody th{color:var(--muted);font-weight:500;background:var(--soft)}
+.sens td{cursor:pointer}
+.sens td.c-ok{background:var(--ok-bg);color:var(--ok)}
+.sens td.c-warn{background:var(--warn-bg);color:var(--warn)}
+.sens td.c-bad{background:var(--bad-bg);color:var(--bad)}
+.sens td.cur{outline:2px solid var(--ink);outline-offset:-2px;font-weight:700}
+.sens .corner{text-align:left;font-family:var(--sans)}
+
+/* 근거자료 */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+table.plain{width:100%;border-collapse:collapse;font-size:13px}
+table.plain th{text-align:left;font-size:11px;color:var(--muted);font-weight:600;padding:6px;border-bottom:1px solid var(--line)}
+table.plain td{padding:7px 6px;border-bottom:1px solid var(--soft);vertical-align:top}
+table.plain td.r{text-align:right;font-family:var(--mono)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px}
+.p-live{background:var(--warn-bg);color:var(--warn)} .p-done{background:var(--soft);color:var(--muted)}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:92px 1fr auto;gap:10px;padding:7px 0;border-bottom:1px solid var(--soft);font-size:13px;align-items:baseline}
+.tl li .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.listings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.listing{border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.listing .p{font-family:var(--mono);font-size:18px;font-weight:600}
+.listing .s{font-size:12px;color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);max-width:90ch}
+.foot p{margin:4px 0}
+.condlist{margin:8px 0 0;padding-left:18px;font-size:13px}
+.condlist li{margin:3px 0}
+.condlist li.done{color:var(--muted);text-decoration:line-through}
+
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .controls{position:static}
+  .two{grid-template-columns:1fr}
+  .listings{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:520px){
+  .verdict{grid-template-columns:1fr}
+  .stamp{width:88px;height:88px}
+  .verdict .big{font-size:22px}
+  .tl li{grid-template-columns:80px 1fr}
+  .tl li .pill{grid-column:2}
+}
+@media (prefers-reduced-motion:no-preference){.seg-b{transition:left .25s,width .25s}.lossmask{transition:width .25s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="head">
+    <div>
+      <div class="label">건설기계 담보대출 심사보고서</div>
+      <h1><span class="plate">충북06로5982</span>볼보 25.5톤 덤프트럭</h1>
+      <div class="muted" style="font-size:13px;margin-top:4px">소유자 조규희 · 기존 서강레미콘 근저당 채무자 이재국 · 신청금액 <span class="num" id="hReq">2,000</span>만 원</div>
+    </div>
+    <dl class="meta">
+      <dt>분석 기준일</dt><dd>2026.10.26</dd>
+      <dt>근거 자료</dt><dd>등록원부 갑 6p · 을 3p</dd>
+      <dt>금액 단위</dt><dd>만 원</dd>
+    </dl>
+  </header>
+
+  <section class="verdict" id="verdict" aria-live="polite">
+    <div class="stamp" id="stamp"><span id="stampTop">조건부</span><b id="stampMain">감액</b></div>
+    <div style="min-width:0">
+      <div class="label" id="vLabel">담보 기준 최대 대출 가능액</div>
+      <div class="big" id="vBig">0만 원</div>
+      <p id="vText"></p>
+      <div class="kpis">
+        <div class="kpi"><div class="l">순처분 가능액</div><div class="v" id="kNet">0</div></div>
+        <div class="kpi"><div class="l">선순위·우선채권</div><div class="v" id="kSenior">0</div></div>
+        <div class="kpi"><div class="l">신규 대출 담보여력</div><div class="v" id="kAvail">0</div></div>
+        <div class="kpi"><div class="l">신청액 담보 커버율</div><div class="v" id="kCover">0%</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <!-- 조건 입력 -->
+    <aside class="controls">
+      <div class="panel">
+        <h2>심사 조건 <small>바꾸면 즉시 재계산</small></h2>
+
+        <div class="group">
+          <div class="label">빠른 시나리오</div>
+          <div class="presets">
+            <button class="chip" data-preset="base">기본 가정</button>
+            <button class="chip" data-preset="worst">보수적</button>
+            <button class="chip" data-preset="paid">우리캐피탈 완제</button>
+            <button class="chip" data-preset="sgpaid">서강 기존 완제</button>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="label">차량 가치</div>
+          <div id="f-price"></div>
+          <div id="f-rate"></div>
+          <div id="f-cost"></div>
+        </div>
+
+        <div class="group">
+          <div class="label">선순위 · 기존 채권 (실제 잔액)</div>
+          <div id="f-woori"></div>
+          <div id="f-other"></div>
+          <div id="f-sg"></div>
+        </div>
+
+        <div class="group">
+          <div class="label">신규 대출 구조</div>
+          <div id="f-req"></div>
+          <div class="field">
+            <label>담보 방식</label>
+            <div class="seg" role="group" aria-label="담보 방식">
+              <button type="button" data-struct="raise">기존 근저당 증액</button>
+              <button type="button" data-struct="new">후순위 신규설정</button>
+              <button type="button" data-struct="none">무담보</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="borrower">신규 채무자</label>
+            <select id="borrower">
+              <option value="lee">이재국 (기존 서강 채무자)</option>
+              <option value="cho">조규희 (차량 소유자)</option>
+              <option value="etc">기타 / 미확정</option>
+            </select>
+          </div>
+          <div id="f-margin"></div>
+        </div>
+
+        <div class="group">
+          <div class="label">승인 전 확인서류</div>
+          <div id="checks" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 결과 -->
+    <div class="results">
+
+      <section class="panel">
+        <h2>담보 회수 순서 <small>순처분가를 순위대로 나눈 결과</small></h2>
+        <div class="chart" id="bar"></div>
+        <div class="axis"><span>0</span><span id="axMax">0</span></div>
+        <div class="legend" id="legend"></div>
+      </section>
+
+      <section class="panel">
+        <h2>대출 가능액 계산 내역</h2>
+        <table class="calc" id="calc"></table>
+        <div id="secNote" style="margin-top:12px;font-size:13px"></div>
+      </section>
+
+      <section class="panel">
+        <h2>민감도 분석 <small>우리캐피탈 잔액 × 차량 시세별 최대 대출 가능액 · 셀을 누르면 해당 조건 적용</small></h2>
+        <div class="scroll"><table class="sens" id="sens"></table></div>
+        <div class="muted" style="font-size:12px;margin-top:8px">초록: 신청액 전액 가능 · 노랑: 감액 가능 · 빨강: 담보 여력 없음(300만 원 미만). 회수율·처분비용·서강 기존잔액·안전마진은 왼쪽 조건을 그대로 씁니다.</div>
+      </section>
+
+      <section class="panel">
+        <h2>승인 조건 및 남은 확인 사항</h2>
+        <ul class="condlist" id="conds"></ul>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- 근거 자료 -->
+  <div class="two">
+    <section class="panel">
+      <h2>등록원부(갑) 차량 정보</h2>
+      <dl class="kv">
+        <dt>건설기계명</dt><dd>덤프트럭 · 영업용</dd>
+        <dt>제작사 / 형식</dt><dd>볼보그룹코리아(주) / <span class="mono">FM84FR3HBX</span></dd>
+        <dt>규격</dt><dd>25.5톤</dd>
+        <dt>제작 / 최초등록</dt><dd class="mono">2016.07.27 / 2016.07.28</dd>
+        <dt>차대번호</dt><dd class="mono" style="word-break:break-all">YV2XT60G8GA792818</dd>
+        <dt>소유자</dt><dd>조규희 (100%) · 2021.01.22 취득</dd>
+        <dt>대여회사</dt><dd>가나건설중기(주)</dd>
+        <dt>검사 유효기간</dt><dd class="mono">2026.07.27 ~ 2027.07.26</dd>
+        <dt>현재 압류</dt><dd>존속 압류 없음</dd>
+      </dl>
+    </section>
+
+    <section class="panel">
+      <h2>등록원부(을) 존속 저당권</h2>
+      <div class="scroll">
+      <table class="plain">
+        <thead><tr><th>순위</th><th>저당권자</th><th>채무자</th><th>설정일</th><th style="text-align:right">채권가액</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>우리금융캐피탈(주)</td><td>조규희</td><td class="mono">2022.01.26</td><td class="r">7,126</td></tr>
+          <tr><td>2</td><td>(주)서강레미콘</td><td>이재국</td><td class="mono">2023.10.12</td><td class="r">1,800</td></tr>
+          <tr><td></td><td colspan="3" style="font-weight:600">설정액 합계</td><td class="r" style="font-weight:700">8,926</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="muted" style="font-size:12px;margin:10px 0 0">두 건 모두 단독근저당이며 말소일자 없음. 채권가액은 담보 한도이며 실제 잔액이 아닙니다. 서강 저당은 소유자 조규희가 이재국의 채무를 위해 차량을 담보로 제공한 물상보증 구조입니다.</p>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>갑부 저당·압류 변동 이력 <small>2021.01.22 조규희 취득 이후 중심</small></h2>
+    <ul class="tl">
+      <li><span class="d">2016–2020</span><span>이전 소유자 기간 저당 3건 설정·말소, 지방세·속도위반 과태료 압류 다수</span><span class="pill p-done">전부 해제</span></li>
+      <li><span class="d">2021.01.22</span><span>조규희 소유권 취득, 신규 단독저당 설정</span><span class="pill p-done">2022.01.28 말소</span></li>
+      <li><span class="d">2022.01.26</span><span>우리금융캐피탈 단독근저당 7,126만 원</span><span class="pill p-live">존속</span></li>
+      <li><span class="d">2023.09.07</span><span>진천군 지방세 체납 압류 (64,580원)</span><span class="pill p-done">09.25 해제</span></li>
+      <li><span class="d">2023.10.12</span><span>서강레미콘 단독근저당 1,800만 원 (채무자 이재국)</span><span class="pill p-live">존속</span></li>
+      <li><span class="d">2025.02.17</span><span>진천경찰서 과태료 체납 압류</span><span class="pill p-done">02.28 해제</span></li>
+      <li><span class="d">2025.11.05</span><span>소유자 주소변경 (진천군 내)</span><span class="pill p-done">변경</span></li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2>2016년식 볼보 25.5톤 유사 매물 <small>호가 기준 · 실거래가 아님</small></h2>
+    <div class="listings">
+      <div class="listing"><div class="label">FM460 · 2016</div><div class="p">4,800</div><div class="s">56만 km · 영업용 운행 중 · 2026.02 등록</div><button class="chip" data-price="4800" style="align-self:flex-start">이 시세 적용</button></div>
+      <div class="listing"><div class="label">FMX540 · 2016</div><div class="p">5,500</div><div class="s">130만 km · 엔진 완보링, 변속기 수리 이력</div><button class="chip" data-price="5500" style="align-self:flex-start">이 시세 적용</button></div>
+      <div class="listing"><div class="label">FMX 트라이뎀 · 2016</div><div class="p">5,600</div><div class="s">66만 km · 2026.07 등록 · 사양 상이 가능</div><button class="chip" data-price="5600" style="align-self:flex-start">이 시세 적용</button></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>계산 방식: 순처분 가능액 = 시세 × 강제처분 회수율 − 처분비용. 근저당권자는 채권가액(채권최고액) 한도에서 순위대로 변제받는다고 가정했고, 우리캐피탈 회수액은 min(실제 잔액, 7,126만 원)으로 계산했습니다. 기타 우선채권에는 당해세 등 법정 우선채권을 넣어 보세요.</p>
+    <p>권장 채권최고액은 실무 관행인 대출원금의 120%로 산출한 참고값입니다. 회수율·처분비용은 경매 실적이 아닌 보수적 심사 가정이며, 이 보고서는 법률·금융 자문이 아닙니다. 담보권 설정·변경의 법적 효력은 등록관청과 법률 전문가에게 확인하세요.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const WOORI_CAP = 7126, SG_CAP = 1800;
+  const S = {price:5500, rate:70, cost:300, woori:1500, other:0, sg:1800, req:2000, margin:90, struct:'raise', borrower:'lee',
+    checks:{k1:false,k2:false,k3:false,k4:false,k5:false,k6:false}};
+  const PRESETS = {
+    base:{price:5500, rate:70, cost:300, woori:1500, other:0, sg:1800},
+    worst:{price:4800, rate:60, cost:400, woori:2500, other:100, sg:1800},
+    paid:{price:5500, rate:70, cost:300, woori:0, other:0, sg:1800},
+    sgpaid:{price:5500, rate:70, cost:300, woori:1500, other:0, sg:0}
+  };
+  const FIELDS = [
+    ['price','중고 시세',3000,8000,50,'만 원','유사 매물 호가 4,800~5,600'],
+    ['rate','강제처분 회수율',40,100,1,'%','급매·경매 할인 반영'],
+    ['cost','집행·운반·보관 비용',0,1000,10,'만 원',''],
+    ['woori','우리금융캐피탈 실제 잔액',0,7126,1,'만 원','채권최고액 7,126 한도 · 초과분은 우선변제 대상 아님'],
+    ['other','기타 우선채권',0,2000,10,'만 원','당해세·체납 지방세 등'],
+    ['sg','서강레미콘 기존 미상환잔액',0,3000,50,'만 원','담보 한도 1,800'],
+    ['req','신규 대출 신청액',0,5000,50,'만 원',''],
+    ['margin','담보여력 반영 비율',50,100,5,'%','여력 중 실제 대출에 쓸 비율(안전마진)']
+  ];
+  const CHECKS = [
+    ['k1','우리금융캐피탈 완제예정액(잔액) 확인서',true],
+    ['k2','서강레미콘 기존 채권 잔액 확정',true],
+    ['k3','소유자 조규희 담보제공(설정·변경) 동의서',true],
+    ['k4','국세·지방세 납세증명서',true],
+    ['k5','차량 실사(주행거리·엔진·사고이력)와 매입견적',false],
+    ['k6','상환재원 약정(운반비 상계 등)',false]
+  ];
+  const $ = id => document.getElementById(id);
+  const fmt = n => Math.round(n).toLocaleString('ko-KR');
+
+  // 입력 생성
+  FIELDS.forEach(([k,label,min,max,step,unit,hint])=>{
+    const el = $('f-'+k); if(!el) return;
+    el.className='field';
+    el.innerHTML = `<div class="top"><label for="r-${k}">${label}</label>
+      <span class="numbox"><input id="n-${k}" type="number" min="${min}" max="${max}" step="${step}" inputmode="numeric" aria-label="${label}"><span>${unit}</span></span></div>
+      <input id="r-${k}" type="range" min="${min}" max="${max}" step="${step}">
+      ${hint?`<div class="hint">${hint}</div>`:''}`;
+    const r=$('r-'+k), n=$('n-'+k);
+    r.addEventListener('input',()=>{S[k]=+r.value; render();});
+    n.addEventListener('change',()=>{let v=+n.value; if(isNaN(v)) v=S[k]; v=Math.max(min,Math.min(max,v)); S[k]=v; render();});
+  });
+  $('checks').innerHTML = CHECKS.map(([k,t,core])=>`<label class="check"><input type="checkbox" id="c-${k}"><span>${t}${core?'<em>필수</em>':''}</span></label>`).join('');
+  CHECKS.forEach(([k])=>$('c-'+k).addEventListener('change',e=>{S.checks[k]=e.target.checked; render();}));
+  document.querySelectorAll('[data-struct]').forEach(b=>b.addEventListener('click',()=>{S.struct=b.dataset.struct; render();}));
+  $('borrower').addEventListener('change',e=>{S.borrower=e.target.value; render();});
+  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{Object.assign(S,PRESETS[b.dataset.preset]); render();}));
+  document.querySelectorAll('[data-price]').forEach(b=>b.addEventListener('click',()=>{S.price=+b.dataset.price; render();}));
+
+  function compute(p){
+    const net = Math.max(0, Math.round(p.price*p.rate/100) - p.cost);
+    const wooriPaid = Math.min(p.woori, WOORI_CAP);
+    const seniorClaim = wooriPaid + p.other;
+    const seniorGot = Math.min(net, seniorClaim);
+    const afterSenior = Math.max(0, net - seniorClaim);
+    const sgSecured = Math.min(p.sg, SG_CAP);
+    const sgUnsecured = Math.max(0, p.sg - SG_CAP);
+    const sgGot = Math.min(afterSenior, sgSecured);
+    const avail = Math.max(0, afterSenior - sgSecured);
+    const maxLoan = p.struct==='none' ? 0 : Math.floor(avail*p.margin/100/10)*10;
+    return {net, wooriPaid, seniorClaim, seniorGot, afterSenior, sgSecured, sgUnsecured, sgGot, avail, maxLoan};
+  }
+  function tier(maxLoan, req){ return maxLoan>=req && req>0 ? 'ok' : maxLoan>=300 ? 'warn' : 'bad'; }
+
+  function render(){
+    // 입력 동기화
+    FIELDS.forEach(([k])=>{ const r=$('r-'+k), n=$('n-'+k); if(r){ r.value=S[k]; if(document.activeElement!==n) n.value=S[k]; }});
+    document.querySelectorAll('[data-struct]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.struct===S.struct));
+    $('borrower').value=S.borrower;
+    CHECKS.forEach(([k])=>$('c-'+k).checked=S.checks[k]);
+
+    const c = compute(S);
+    const t = S.struct==='none' ? 'bad' : tier(c.maxLoan, S.req);
+    const coreMissing = CHECKS.filter(([k,,core])=>core && !S.checks[k]).length;
+    const approve = S.struct==='none' ? 0 : Math.min(S.req, c.maxLoan);
+
+    // 판정
+    const v=$('verdict'); v.className='verdict v-'+(t==='ok' && coreMissing ? 'warn' : t);
+    $('stampTop').textContent = coreMissing ? '조건부' : '확인완료';
+    $('stampMain').textContent = S.struct==='none' ? '담보없음' : t==='ok' ? '전액 가능' : t==='warn' ? '감액 가능' : '보류';
+    $('hReq').textContent = fmt(S.req);
+    $('vLabel').textContent = S.struct==='none' ? '무담보 대출 — 담보 기준 가능액 없음' : `신청 ${fmt(S.req)}만 원 중 담보로 뒷받침되는 금액`;
+    $('vBig').textContent = fmt(approve)+'만 원';
+    let txt;
+    if(S.struct==='none') txt = `차량 담보를 잡지 않으면 회수는 채무자 신용에만 의존합니다. 참고로 현재 조건에서 담보 설정 시 최대 ${fmt(Math.floor(c.avail*S.margin/100/10)*10)}만 원까지 뒷받침됩니다.`;
+    else if(t==='ok') txt = `현재 가정에서 담보여력 ${fmt(c.avail)}만 원 중 ${S.margin}%인 ${fmt(c.maxLoan)}만 원까지 가능하므로 신청액 전액이 담보 범위 안에 있습니다.`;
+    else if(t==='warn') txt = `담보 기준 최대 ${fmt(c.maxLoan)}만 원입니다. 신청액보다 ${fmt(S.req-c.maxLoan)}만 원 부족하므로 감액하거나 추가 담보·보증을 요구해야 합니다.`;
+    else txt = `선순위와 서강 기존 채권을 빼면 신규 대출을 뒷받침할 담보가치가 사실상 없습니다(여력 ${fmt(c.avail)}만 원).`;
+    if(coreMissing) txt += ` 필수 확인서류 ${coreMissing}건이 남아 있어 해당 서류 확인 전까지는 조건부 판단입니다.`;
+    $('vText').textContent = txt;
+    $('kNet').textContent = fmt(c.net);
+    $('kSenior').textContent = fmt(c.seniorClaim);
+    $('kAvail').textContent = fmt(c.avail);
+    $('kCover').textContent = S.req ? Math.round(Math.min(c.avail, S.req)/S.req*100)+'%' : '–';
+
+    // 막대
+    const reqShown = S.struct==='none' ? 0 : S.req;
+    const segs = [
+      ['우리캐피탈', c.wooriPaid, 'var(--woori)'],
+      ['기타 우선', S.other, 'var(--other)'],
+      ['서강 기존', c.sgSecured, 'var(--sg)'],
+      ['신규 대출', reqShown, 'var(--new)']
+    ];
+    const totalClaims = segs.reduce((a,s)=>a+s[1],0);
+    const scale = Math.max(S.price, totalClaims, 1);
+    const pct = v => v/scale*100;
+    const lbl = (v,w) => w>8 ? `<span>${fmt(v)}</span>` : '';
+    // 위: 차량 가치 (순처분 | 할인+비용 손실 | 시세 초과 구간)
+    let val = '';
+    if(c.net>0) val += `<div class="seg-b val-net" style="left:0;width:${pct(c.net)}%" title="순처분 가능액 ${fmt(c.net)}만 원">${lbl(c.net,pct(c.net))}</div>`;
+    if(S.price>c.net) val += `<div class="seg-b val-loss" style="left:${pct(c.net)}%;width:${pct(S.price-c.net)}%" title="할인+비용 손실 ${fmt(S.price-c.net)}만 원">${lbl(S.price-c.net,pct(S.price-c.net))}</div>`;
+    if(scale>S.price) val += `<div class="seg-b val-over" style="left:${pct(S.price)}%;width:${pct(scale-S.price)}%" title="시세를 넘는 채권">${pct(scale-S.price)>12?'<span>시세 초과</span>':''}</div>`;
+    // 아래: 채권 (순위대로 쌓고, 순처분선 이후는 미회수 빗금)
+    let x=0, cl='';
+    segs.forEach(([n,v,col])=>{ if(v<=0) return; const w=pct(v);
+      cl+=`<div class="seg-b" style="left:${pct(x)}%;width:${w}%;background:${col}" title="${n} ${fmt(v)}만 원">${lbl(v,w)}</div>`; x+=v; });
+    if(totalClaims>c.net) cl += `<div class="unrec" style="left:${pct(c.net)}%" title="회수 불가 채권 ${fmt(totalClaims-c.net)}만 원"></div>`;
+    // 기준선: 시세(실선), 순처분(점선)
+    const pP = pct(S.price), pN = pct(c.net);
+    const edge = p => p>88 ? ' edge-r' : p<8 ? ' edge-l' : '';
+    const marks = `<div class="marks">
+      <div class="mark${edge(pP)}" style="left:${pP}%"><b>시세 ${fmt(S.price)}</b></div>
+      <div class="mark net${edge(pN)}" style="left:${pN}%"><b>순처분 ${fmt(c.net)}</b></div></div>`;
+    $('bar').innerHTML = `<div class="trk"><div class="trk-l">차량 가치</div><div class="bar">${val}</div></div>
+      <div class="trk"><div class="trk-l">채권<br>(순위순)</div><div class="bar">${cl}</div></div>${marks}`;
+    $('axMax').textContent = fmt(scale)+'만 원';
+    const newCovered = Math.max(0, Math.min(reqShown, c.net - c.seniorClaim - c.sgSecured));
+    $('legend').innerHTML = [
+      ['var(--woori)','우리캐피탈 회수', `${fmt(Math.min(c.wooriPaid,c.net))} / ${fmt(c.wooriPaid)}`],
+      ['var(--other)','기타 우선채권', `${fmt(Math.max(0,Math.min(S.other,c.net-c.wooriPaid)))} / ${fmt(S.other)}`],
+      ['var(--sg)','서강 기존 회수', `${fmt(c.sgGot)} / ${fmt(c.sgSecured)}`],
+      ['var(--new)','신규 대출 회수', `${fmt(newCovered)} / ${fmt(reqShown)}`],
+      ['var(--short)','시세 대비 손실(할인+비용)', fmt(S.price - c.net)],
+      ['repeating-linear-gradient(135deg,var(--sheet) 0 3px,var(--short) 3px 5px)','미회수 채권 (순처분 초과)', fmt(Math.max(0,totalClaims - c.net))],
+      ['var(--muted)','시세 초과 채권', fmt(Math.max(0,totalClaims - S.price))]
+    ].map(([col,l,v])=>`<div><i style="background:${col}"></i><span>${l}<b>${v}</b></span></div>`).join('');
+
+    // 계산 내역
+    const rows = [
+      ['A','중고 시세 가정', fmt(S.price), ''],
+      ['B',`강제처분 할인 (회수율 ${S.rate}%)`, '− '+fmt(S.price*(1-S.rate/100)), 'minus'],
+      ['C','집행·운반·보관 비용', '− '+fmt(S.cost), 'minus'],
+      ['=','순처분 가능액', fmt(c.net), 'sum'],
+      ['D',`우리금융캐피탈 (잔액 ${fmt(S.woori)}, 한도 7,126)`, '− '+fmt(c.wooriPaid), 'minus'],
+      ['E','기타 우선채권', '− '+fmt(S.other), 'minus'],
+      ['F',`서강레미콘 기존 (잔액 ${fmt(S.sg)}, 한도 1,800)`, '− '+fmt(c.sgSecured), 'minus'],
+      ['=','신규 대출 담보여력', fmt(c.avail), 'sum'],
+      ['G',`안전마진 반영 (${S.margin}%)`, S.struct==='none'?'무담보':fmt(c.maxLoan), ''],
+      ['H','신청액', fmt(S.req), ''],
+      ['=','담보 기준 승인 가능액', fmt(approve), 'sum']
+    ];
+    $('calc').innerHTML = rows.map(([a,b,v,cls])=>`<tr class="${cls}"><td>${a}</td><td>${b}</td><td>${v}</td></tr>`).join('');
+
+    // 담보 구조 메모
+    const cap = Math.ceil(approve*1.2/10)*10;
+    let note='';
+    if(S.struct==='raise') note = `<b>기존 근저당 증액 변경</b>: 서강 채권가액을 1,800만 원에서 <span class="num">${fmt(SG_CAP+cap)}</span>만 원으로 변경 등록(신규 ${fmt(approve)}만 원의 120% 반영). 기존 근저당은 채무자 이재국 기준이므로 ${S.borrower==='lee'?'피담보채무 범위에 신규 대출을 추가하는 변경계약이 필요합니다.':'채무자가 다르면 채무자 추가·변경 계약이 함께 필요해 신규 설정이 더 깔끔할 수 있습니다.'} 증액분은 변경등록일 기준 순위로 보는 것이 안전합니다.`;
+    else if(S.struct==='new') note = `<b>후순위 신규 근저당 (3순위)</b>: 채권최고액 <span class="num">${fmt(cap)}</span>만 원, 채무자 ${S.borrower==='lee'?'이재국':S.borrower==='cho'?'조규희':'확정 필요'}로 설정. 기존 1,800만 원 근저당과 별개라 피담보채무 범위가 명확합니다.`;
+    else note = `<b>무담보</b>: 차량에서 회수할 권리가 없습니다. 연대보증·공정증서·운반비 상계 약정 등 다른 회수 수단 없이는 권하기 어렵습니다.`;
+    if(c.sgUnsecured>0) note += ` <span style="color:var(--bad)">서강 기존 잔액 중 ${fmt(c.sgUnsecured)}만 원은 1,800만 원 한도를 넘어 현재 담보로 보호되지 않습니다.</span>`;
+    $('secNote').innerHTML = note;
+
+    // 민감도
+    const prices=[4000,4800,5200,5500,5600,6000,6500], wooris=[0,500,1000,1500,2000,2500,3000,4000,5000];
+    const nearP = prices.reduce((a,b)=>Math.abs(b-S.price)<Math.abs(a-S.price)?b:a);
+    const nearW = wooris.reduce((a,b)=>Math.abs(b-S.woori)<Math.abs(a-S.woori)?b:a);
+    let sh = `<thead><tr><th class="corner">우리 잔액 \\ 시세</th>${prices.map(p=>`<th>${fmt(p)}</th>`).join('')}</tr></thead><tbody>`;
+    wooris.forEach(w=>{
+      sh += `<tr><th>${fmt(w)}</th>`;
+      prices.forEach(p=>{
+        const r = compute({...S, price:p, woori:w, struct: S.struct==='none'?'new':S.struct});
+        const tt = tier(r.maxLoan, S.req);
+        sh += `<td class="c-${tt}${p===nearP&&w===nearW?' cur':''}" data-p="${p}" data-w="${w}" tabindex="0">${fmt(r.maxLoan)}</td>`;
+      });
+      sh += '</tr>';
+    });
+    $('sens').innerHTML = sh + '</tbody>';
+    $('sens').querySelectorAll('td').forEach(td=>{
+      const go=()=>{S.price=+td.dataset.p; S.woori=+td.dataset.w; render();};
+      td.addEventListener('click',go); td.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+    });
+
+    // 조건 목록
+    const conds = [];
+    CHECKS.forEach(([k,t,core])=>conds.push([t+(core?' (필수)':''), S.checks[k]]));
+    if(S.borrower!=='cho') conds.push(['물상보증인 조규희에게 신규 채무 내용과 담보 범위 설명·서면 확인', S.checks.k3]);
+    if(S.borrower==='etc') conds.push(['신규 채무자 확정 후 신용·소득 자료 확보', false]);
+    if(approve < S.req && S.struct!=='none') conds.push([`신청액 ${fmt(S.req)}만 원 → ${fmt(approve)}만 원으로 감액 협의 또는 부족분 ${fmt(S.req-approve)}만 원 추가 담보·보증`, false]);
+    conds.push(['저당권 설정·변경 등록 완료 후 대출금 지급', false]);
+    $('conds').innerHTML = conds.map(([t,d])=>`<li class="${d?'done':''}">${t}</li>`).join('');
+  }
+  render();
+})();
+</script>
+</body>
+</html>
